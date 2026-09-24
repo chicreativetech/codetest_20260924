@@ -1,0 +1,14 @@
+@use '../../styles/variables' as *;
+
+.content {
+  &:last-child {
+    padding-bottom: $spacing-unit * 2;
+  }
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: $spacing-unit;
+  font-weight: 600;
+}

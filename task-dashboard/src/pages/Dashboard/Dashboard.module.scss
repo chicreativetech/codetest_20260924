@@ -1,0 +1,28 @@
+@use '../../styles/variables' as *;
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit * 3;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-unit * 4 $spacing-unit * 3;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: $spacing-unit * 3;
+  align-items: start;
+
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: minmax(0, 1fr) $sidebar-width;
+  }
+}
+
+.sidebar {
+  @media (min-width: $breakpoint-md) {
+    position: sticky;
+    top: $spacing-unit * 3;
+  }
+}
