@@ -5,7 +5,8 @@ const FONT_FAMILY = ['Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-seri
 export const theme = createTheme({
   typography: {
     fontFamily: FONT_FAMILY,
-    h4: { fontWeight: 600 }
+    h4: { fontWeight: 600 },
+    button: { textTransform: 'none', fontWeight: 600 }
   },
   shape: {
     borderRadius: 8

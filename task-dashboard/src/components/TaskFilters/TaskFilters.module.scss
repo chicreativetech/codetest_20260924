@@ -1,9 +1,20 @@
 @use '../../styles/variables' as *;
 
 .content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit * 2;
+
   &:last-child {
     padding-bottom: $spacing-unit * 2;
   }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-unit * 2;
 }
 
 .title {
@@ -11,4 +22,24 @@
   align-items: center;
   gap: $spacing-unit;
   font-weight: 600;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: $spacing-unit * 2;
+
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+// Offsets MUI's small text-button padding so the label lines up with the controls' right edge.
+.clearButton {
+  margin-right: -$text-button-padding-x-small;
+}
+
+// Matches the look of MUI's input placeholder so "All" reads the same in every filter.
+.placeholder {
+  opacity: 0.42;
 }
