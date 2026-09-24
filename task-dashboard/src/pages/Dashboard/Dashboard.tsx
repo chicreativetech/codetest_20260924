@@ -1,27 +1,23 @@
-import { Typography } from '@mui/material';
-import type { Task } from '../../types/task';
 import { TaskFilters } from '../../components/TaskFilters/TaskFilters';
-import { TaskList } from '../../components/TaskList/TaskList';
-import { TaskStats } from '../../components/TaskStats/TaskStats';
+import { useTasks } from '../../hooks/useTasks/useTasks';
 import styles from './Dashboard.module.scss';
+import { DashboardContent } from './DashboardContent';
+import { DashboardHeader } from './DashboardHeader';
 
-export interface DashboardProps {
-  tasks: Task[];
-}
+export function Dashboard() {
+  const { tasks, fetchStatus, isRefetching, fetchError, refetch, updateStatus } = useTasks();
 
-export function Dashboard({ tasks }: DashboardProps) {
   return (
     <main className={styles.dashboard}>
-      <Typography variant='h4' component='h1'>
-        Task Dashboard
-      </Typography>
+      <DashboardHeader isRefreshing={isRefetching} canRefresh={fetchStatus === 'success'} onRefresh={refetch} />
       <TaskFilters />
-      <div className={styles.content}>
-        <TaskList tasks={tasks} />
-        <aside className={styles.sidebar}>
-          <TaskStats tasks={tasks} />
-        </aside>
-      </div>
+      <DashboardContent
+        tasks={tasks}
+        fetchStatus={fetchStatus}
+        fetchError={fetchError}
+        onRetry={refetch}
+        onStatusChange={updateStatus}
+      />
     </main>
   );
 }

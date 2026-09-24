@@ -19,12 +19,6 @@ export const PRIORITY_LABELS: Record<TaskPriority, string> = {
   high: 'High'
 };
 
-export const STATUS_COLORS: Record<TaskStatus, ChipColor> = {
-  todo: 'default',
-  'in-progress': 'info',
-  done: 'success'
-};
-
 export const PRIORITY_COLORS: Record<TaskPriority, ChipColor> = {
   low: 'default',
   medium: 'warning',

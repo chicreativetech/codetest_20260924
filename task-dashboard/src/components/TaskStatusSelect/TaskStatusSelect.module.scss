@@ -1,0 +1,11 @@
+@use '../../styles/variables' as *;
+
+.select {
+  min-width: 136px;
+  font-size: 0.8125rem;
+
+  :global(.MuiSelect-select) {
+    padding-top: $spacing-unit * 0.5;
+    padding-bottom: $spacing-unit * 0.5;
+  }
+}

@@ -1,0 +1,11 @@
+@use '../../styles/variables' as *;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-unit * 2;
+}
+
+.card {
+  height: $task-card-height;
+}

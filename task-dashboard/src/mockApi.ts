@@ -1,7 +1,7 @@
-import type { Task } from '../types/task';
+import type { Task, TaskStatus } from './types/task';
 
-// Static seed data. Task 2 moves fetching behind `mockApi.ts` and the `useTasks` hook.
-export const SAMPLE_TASKS: Task[] = [
+// In-memory "database". Kept mutable so a refetch reflects previously saved status changes.
+const TASKS: Task[] = [
   {
     id: '1',
     title: 'Design system tokens',
@@ -48,3 +48,21 @@ export const SAMPLE_TASKS: Task[] = [
     createdAt: '2026-06-01T11:00:00Z'
   }
 ];
+
+export function fetchTasks(): Promise<Task[]> {
+  return new Promise((resolve) => setTimeout(() => resolve(TASKS.map((task) => ({ ...task }))), 800));
+}
+
+export function updateTaskStatus(id: string, status: TaskStatus): Promise<Task> {
+  return new Promise((resolve, reject) =>
+    setTimeout(() => {
+      const task = TASKS.find((t) => t.id === id);
+      if (!task) {
+        reject(new Error(`Task ${id} not found`));
+        return;
+      }
+      task.status = status;
+      resolve({ ...task });
+    }, 300)
+  );
+}

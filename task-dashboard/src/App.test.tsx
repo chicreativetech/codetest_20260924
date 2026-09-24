@@ -7,8 +7,9 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Task Dashboard' })).toBeInTheDocument();
   });
 
-  it('renders a card for every task', () => {
+  it('renders a card for every task once loaded', async () => {
     render(<App />);
-    expect(within(screen.getByRole('list', { name: 'Tasks' })).getAllByRole('article')).toHaveLength(5);
+    const list = await screen.findByRole('list', { name: 'Tasks' }, { timeout: 2000 });
+    expect(within(list).getAllByRole('article')).toHaveLength(5);
   });
 });

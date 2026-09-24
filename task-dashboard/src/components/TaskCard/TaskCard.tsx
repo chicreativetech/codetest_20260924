@@ -2,16 +2,18 @@ import CalendarTodayOutlined from '@mui/icons-material/CalendarTodayOutlined';
 import PersonOutlined from '@mui/icons-material/PersonOutlined';
 import { Card, CardContent, Chip, Typography } from '@mui/material';
 import type { SvgIconComponent } from '@mui/icons-material';
-import { PRIORITY_COLORS, PRIORITY_LABELS, STATUS_COLORS, STATUS_LABELS } from '../../constants/task';
-import type { Task } from '../../types/task';
+import { PRIORITY_COLORS, PRIORITY_LABELS } from '../../constants/task';
+import type { Task, TaskStatus } from '../../types/task';
 import { formatDate } from '../../utils/formatDate';
+import { TaskStatusSelect } from '../TaskStatusSelect/TaskStatusSelect';
 import styles from './TaskCard.module.scss';
 
 export interface TaskCardProps {
   task: Task;
+  onStatusChange: (id: string, status: TaskStatus) => void;
 }
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange }: TaskCardProps) {
   return (
     <Card variant='outlined' component='article' aria-labelledby={`task-${task.id}-title`}>
       <CardContent className={styles.content}>
@@ -25,7 +27,11 @@ export function TaskCard({ task }: TaskCardProps) {
           {task.description}
         </Typography>
         <div className={styles.footer}>
-          <Chip size='small' variant='outlined' label={STATUS_LABELS[task.status]} color={STATUS_COLORS[task.status]} />
+          <TaskStatusSelect
+            value={task.status}
+            label={`Status of ${task.title}`}
+            onChange={(status) => onStatusChange(task.id, status)}
+          />
           <TaskMeta Icon={PersonOutlined} label={task.assignee} />
           <TaskMeta Icon={CalendarTodayOutlined} label={formatDate(task.createdAt)} />
         </div>
