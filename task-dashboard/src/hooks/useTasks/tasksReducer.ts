@@ -2,11 +2,17 @@ import type { Task, TaskStatus } from '../../types/task';
 
 export type FetchStatus = 'loading' | 'success' | 'error';
 
+export interface TaskUpdateError {
+  taskTitle: string;
+  error: Error;
+}
+
 export interface TasksState {
   tasks: Task[];
   fetchStatus: FetchStatus;
   isRefetching: boolean;
   fetchError: Error | null;
+  updateError: TaskUpdateError | null;
 }
 
 export type TasksAction =
@@ -14,14 +20,16 @@ export type TasksAction =
   | { type: 'fetchSucceeded'; tasks: Task[] }
   | { type: 'fetchFailed'; error: Error }
   | { type: 'statusChanged'; id: string; status: TaskStatus }
-  | { type: 'statusRolledBack'; id: string; from: TaskStatus; to: TaskStatus };
+  | { type: 'statusRolledBack'; id: string; from: TaskStatus; to: TaskStatus; error: TaskUpdateError }
+  | { type: 'updateErrorDismissed' };
 
 export function createInitialState(cachedTasks: Task[] | null): TasksState {
   return {
     tasks: cachedTasks ?? [],
     fetchStatus: cachedTasks ? 'success' : 'loading',
     isRefetching: false,
-    fetchError: null
+    fetchError: null,
+    updateError: null
   };
 }
 
@@ -34,7 +42,7 @@ function rollBackStatus(state: TasksState, action: Extract<TasksAction, { type: 
   const task = state.tasks.find((t) => t.id === action.id);
   // Only undo if nothing newer has overwritten the optimistic value in the meantime.
   const tasks = task?.status === action.from ? withTaskStatus(state.tasks, action.id, action.to) : state.tasks;
-  return { ...state, tasks };
+  return { ...state, tasks, updateError: action.error };
 }
 
 export function tasksReducer(state: TasksState, action: TasksAction): TasksState {
@@ -51,5 +59,7 @@ export function tasksReducer(state: TasksState, action: TasksAction): TasksState
       return { ...state, tasks: withTaskStatus(state.tasks, action.id, action.status) };
     case 'statusRolledBack':
       return rollBackStatus(state, action);
+    case 'updateErrorDismissed':
+      return { ...state, updateError: null };
   }
 }

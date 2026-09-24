@@ -1,7 +1,10 @@
 import { Alert, Button, Skeleton } from '@mui/material';
 import { lazy, Suspense, type ReactNode } from 'react';
 import type { FetchStatus } from '../../hooks/useTasks/tasksReducer';
+import { ErrorBoundary } from '../../components/ErrorBoundary/ErrorBoundary';
 import { TaskList } from '../../components/TaskList/TaskList';
+import { TaskListErrorFallback } from '../../components/TaskList/TaskListErrorFallback';
+import { TaskListEmptyState } from '../../components/TaskListEmptyState/TaskListEmptyState';
 import { TaskListSkeleton } from '../../components/TaskListSkeleton/TaskListSkeleton';
 import type { Task, TaskStatus } from '../../types/task';
 import styles from './Dashboard.module.scss';
@@ -60,7 +63,11 @@ export function DashboardContent({ tasks, fetchStatus, fetchError, onRetry, onSt
 
   return (
     <DashboardLayout
-      main={<TaskList tasks={tasks} onStatusChange={onStatusChange} />}
+      main={
+        <ErrorBoundary fallback={TaskListErrorFallback}>
+          {tasks.length > 0 ? <TaskList tasks={tasks} onStatusChange={onStatusChange} /> : <TaskListEmptyState />}
+        </ErrorBoundary>
+      }
       sidebar={
         <Suspense fallback={<TaskStatsSkeleton />}>
           <TaskStats tasks={tasks} />

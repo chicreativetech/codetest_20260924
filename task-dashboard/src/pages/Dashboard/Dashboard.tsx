@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { TaskFilters } from '../../components/TaskFilters/TaskFilters';
+import { TaskUpdateErrorSnackbar } from '../../components/TaskUpdateErrorSnackbar/TaskUpdateErrorSnackbar';
 import { useFilteredTasks } from '../../hooks/useFilteredTasks';
 import { useTasks } from '../../hooks/useTasks/useTasks';
 import { getAssignees } from '../../utils/filterTasks';
@@ -8,7 +9,8 @@ import { DashboardContent } from './DashboardContent';
 import { DashboardHeader } from './DashboardHeader';
 
 export function Dashboard() {
-  const { tasks, fetchStatus, isRefetching, fetchError, refetch, updateStatus } = useTasks();
+  const { tasks, fetchStatus, isRefetching, fetchError, updateError, refetch, updateStatus, dismissUpdateError } =
+    useTasks();
   const filteredTasks = useFilteredTasks(tasks);
   const assignees = useMemo(() => getAssignees(tasks), [tasks]);
 
@@ -23,6 +25,7 @@ export function Dashboard() {
         onRetry={refetch}
         onStatusChange={updateStatus}
       />
+      <TaskUpdateErrorSnackbar updateError={updateError} onClose={dismissUpdateError} />
     </main>
   );
 }

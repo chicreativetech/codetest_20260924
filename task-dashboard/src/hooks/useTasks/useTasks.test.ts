@@ -62,7 +62,7 @@ describe('useTasks', () => {
     expect(result.current.tasks[0].status).toBe('done');
   });
 
-  it('rolls the status back when the update fails', async () => {
+  it('rolls the status back and reports the failed update when the update fails', async () => {
     const serverError = new Error('Server error');
     vi.mocked(updateTaskStatus).mockRejectedValue(serverError);
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -70,7 +70,11 @@ describe('useTasks', () => {
 
     await act(() => result.current.updateStatus(TASK.id, 'done'));
     expect(result.current.tasks[0].status).toBe('todo');
+    expect(result.current.updateError).toEqual({ taskTitle: TASK.title, error: serverError });
     expect(consoleError).toHaveBeenCalledWith(expect.any(String), serverError);
     consoleError.mockRestore();
+
+    act(() => result.current.dismissUpdateError());
+    expect(result.current.updateError).toBeNull();
   });
 });

@@ -2,15 +2,17 @@ import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { updateTaskStatus } from '../../mockApi';
 import type { Task, TaskStatus } from '../../types/task';
 import { getCachedTasks, loadTasks, setCachedTasks } from './tasksCache';
-import { createInitialState, tasksReducer, type FetchStatus } from './tasksReducer';
+import { createInitialState, tasksReducer, type FetchStatus, type TaskUpdateError } from './tasksReducer';
 
 export interface UseTasksResult {
   tasks: Task[];
   fetchStatus: FetchStatus;
   isRefetching: boolean;
   fetchError: Error | null;
+  updateError: TaskUpdateError | null;
   refetch: () => Promise<void>;
   updateStatus: (id: string, status: TaskStatus) => Promise<void>;
+  dismissUpdateError: () => void;
 }
 
 function toError(error: unknown): Error {
@@ -40,21 +42,24 @@ export function useTasks(): UseTasksResult {
   }, []);
 
   const updateStatus = useCallback(async (id: string, status: TaskStatus) => {
-    const previousStatus = tasksRef.current.find((task) => task.id === id)?.status;
-    if (!previousStatus || previousStatus === status) return;
+    const task = tasksRef.current.find((t) => t.id === id);
+    if (!task || task.status === status) return;
 
     dispatch({ type: 'statusChanged', id, status });
     try {
       await updateTaskStatus(id, status);
     } catch (error) {
       console.error(`Failed to update status of task ${id}; reverting.`, error);
-      dispatch({ type: 'statusRolledBack', id, from: status, to: previousStatus });
+      const updateError = { taskTitle: task.title, error: toError(error) };
+      dispatch({ type: 'statusRolledBack', id, from: status, to: task.status, error: updateError });
     }
   }, []);
+
+  const dismissUpdateError = useCallback(() => dispatch({ type: 'updateErrorDismissed' }), []);
 
   useEffect(() => {
     if (!getCachedTasks()) void refetch();
   }, [refetch]);
 
-  return { ...state, refetch, updateStatus };
+  return { ...state, refetch, updateStatus, dismissUpdateError };
 }
