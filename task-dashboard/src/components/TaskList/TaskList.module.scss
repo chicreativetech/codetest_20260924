@@ -8,3 +8,9 @@
   padding: 0;
   list-style: none;
 }
+
+// Lets the browser skip layout and paint for cards scrolled off-screen.
+.item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto $task-card-height;
+}

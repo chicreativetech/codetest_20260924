@@ -1,11 +1,16 @@
 import { Alert, Button, Skeleton } from '@mui/material';
-import type { ReactNode } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import type { FetchStatus } from '../../hooks/useTasks/tasksReducer';
 import { TaskList } from '../../components/TaskList/TaskList';
 import { TaskListSkeleton } from '../../components/TaskListSkeleton/TaskListSkeleton';
-import { TaskStats } from '../../components/TaskStats/TaskStats';
 import type { Task, TaskStatus } from '../../types/task';
 import styles from './Dashboard.module.scss';
+
+// Code-split: TaskStats is loaded in its own chunk, only once there are tasks to summarise.
+const TaskStats = lazy(async () => {
+  const { TaskStats } = await import('../../components/TaskStats/TaskStats');
+  return { default: TaskStats };
+});
 
 interface DashboardContentProps {
   tasks: Task[];
@@ -29,14 +34,13 @@ function DashboardLayout({ main, sidebar }: DashboardLayoutProps) {
   );
 }
 
+function TaskStatsSkeleton() {
+  return <Skeleton variant='rounded' className={styles.statsSkeleton} />;
+}
+
 export function DashboardContent({ tasks, fetchStatus, fetchError, onRetry, onStatusChange }: DashboardContentProps) {
   if (fetchStatus === 'loading') {
-    return (
-      <DashboardLayout
-        main={<TaskListSkeleton />}
-        sidebar={<Skeleton variant='rounded' className={styles.statsSkeleton} />}
-      />
-    );
+    return <DashboardLayout main={<TaskListSkeleton />} sidebar={<TaskStatsSkeleton />} />;
   }
 
   if (fetchStatus === 'error') {
@@ -57,7 +61,11 @@ export function DashboardContent({ tasks, fetchStatus, fetchError, onRetry, onSt
   return (
     <DashboardLayout
       main={<TaskList tasks={tasks} onStatusChange={onStatusChange} />}
-      sidebar={<TaskStats tasks={tasks} />}
+      sidebar={
+        <Suspense fallback={<TaskStatsSkeleton />}>
+          <TaskStats tasks={tasks} />
+        </Suspense>
+      }
     />
   );
 }

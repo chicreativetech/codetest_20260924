@@ -1,6 +1,7 @@
 import CalendarTodayOutlined from '@mui/icons-material/CalendarTodayOutlined';
 import PersonOutlined from '@mui/icons-material/PersonOutlined';
 import { Card, CardContent, Chip, Typography } from '@mui/material';
+import { memo, useCallback } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
 import { PRIORITY_COLORS, PRIORITY_LABELS } from '../../constants/task';
 import type { Task, TaskStatus } from '../../types/task';
@@ -13,7 +14,14 @@ export interface TaskCardProps {
   onStatusChange: (id: string, status: TaskStatus) => void;
 }
 
-export function TaskCard({ task, onStatusChange }: TaskCardProps) {
+// Memoised: when filters change, cards that stay visible receive the same `task` object and the same
+// stable `onStatusChange` (useCallback in useTasks), so React skips re-rendering them.
+export const TaskCard = memo(function TaskCard({ task, onStatusChange }: TaskCardProps) {
+  const handleStatusChange = useCallback(
+    (status: TaskStatus) => onStatusChange(task.id, status),
+    [task.id, onStatusChange]
+  );
+
   return (
     <Card variant='outlined' component='article' aria-labelledby={`task-${task.id}-title`}>
       <CardContent className={styles.content}>
@@ -27,18 +35,14 @@ export function TaskCard({ task, onStatusChange }: TaskCardProps) {
           {task.description}
         </Typography>
         <div className={styles.footer}>
-          <TaskStatusSelect
-            value={task.status}
-            label={`Status of ${task.title}`}
-            onChange={(status) => onStatusChange(task.id, status)}
-          />
+          <TaskStatusSelect value={task.status} label={`Status of ${task.title}`} onChange={handleStatusChange} />
           <TaskMeta Icon={PersonOutlined} label={task.assignee} />
           <TaskMeta Icon={CalendarTodayOutlined} label={formatDate(task.createdAt)} />
         </div>
       </CardContent>
     </Card>
   );
-}
+});
 
 interface TaskMetaProps {
   Icon: SvgIconComponent;
